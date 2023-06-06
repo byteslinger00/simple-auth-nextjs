@@ -1,45 +1,49 @@
-import { useState, useEffect } from 'react'
-import { useUser, useSupabaseClient, Session } from '@supabase/auth-helpers-react'
-import { Database } from '../utils/database.types'
-type Profiles = Database['public']['Tables']['profiles']['Row']
+import { useState, useEffect } from "react";
+import {
+  useUser,
+  useSupabaseClient,
+  Session,
+} from "@supabase/auth-helpers-react";
+import { Database } from "../utils/database.types";
+type Profiles = Database["public"]["Tables"]["profiles"]["Row"];
 
 export default function Account({ session }: { session: Session }) {
-  const supabase = useSupabaseClient<Database>()
-  const user = useUser()
-  const [loading, setLoading] = useState(true)
-  const [username, setUsername] = useState<Profiles['username']>('')
-  const [website, setWebsite] = useState<Profiles['website']>('')
-  const [avatar_url, setAvatarUrl] = useState<Profiles['avatar_url']>('')
+  const supabase = useSupabaseClient<Database>();
+  const user = useUser();
+  const [loading, setLoading] = useState(true);
+  const [username, setUsername] = useState<Profiles["username"]>("");
+  const [website, setWebsite] = useState<Profiles["website"]>("");
+  const [avatar_url, setAvatarUrl] = useState<Profiles["avatar_url"]>("");
 
   useEffect(() => {
-    getProfile()
-  }, [session])
+    getProfile();
+  }, [session]);
 
   async function getProfile() {
     try {
-      setLoading(true)
-      if (!user) throw new Error('No user')
+      setLoading(true);
+      if (!user) throw new Error("No user");
 
       let { data, error, status } = await supabase
-        .from('profiles')
+        .from("profiles")
         .select(`username, website, avatar_url`)
-        .eq('id', user.id)
-        .single()
+        .eq("id", user.id)
+        .single();
 
       if (error && status !== 406) {
-        throw error
+        throw error;
       }
 
       if (data) {
-        setUsername(data.username)
-        setWebsite(data.website)
-        setAvatarUrl(data.avatar_url)
+        setUsername(data.username);
+        setWebsite(data.website);
+        setAvatarUrl(data.avatar_url);
       }
     } catch (error) {
-      alert('Error loading user data!')
-      console.log(error)
+      alert("Error loading user data!");
+      console.log(error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -48,13 +52,14 @@ export default function Account({ session }: { session: Session }) {
     website,
     avatar_url,
   }: {
-    username: Profiles['username']
-    website: Profiles['website']
-    avatar_url: Profiles['avatar_url']
+    username: Profiles["username"];
+    website: Profiles["website"];
+    avatar_url: Profiles["avatar_url"];
   }) {
     try {
-      setLoading(true)
-      if (!user) throw new Error('No user')
+      setLoading(true);
+      console.log("Loading...");
+      if (!user) throw new Error("No user");
 
       const updates = {
         id: user.id,
@@ -62,16 +67,16 @@ export default function Account({ session }: { session: Session }) {
         website,
         avatar_url,
         updated_at: new Date().toISOString(),
-      }
+      };
 
-      let { error } = await supabase.from('profiles').upsert(updates)
-      if (error) throw error
-      alert('Profile updated!')
+      let { error } = await supabase.from("profiles").upsert(updates);
+      if (error) throw error;
+      alert("Profile updated!");
     } catch (error) {
-      alert('Error updating the data!')
-      console.log(error)
+      alert("Error updating the data!");
+      console.log(error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -86,7 +91,7 @@ export default function Account({ session }: { session: Session }) {
         <input
           id="username"
           type="text"
-          value={username || ''}
+          value={username || ""}
           onChange={(e) => setUsername(e.target.value)}
         />
       </div>
@@ -95,7 +100,7 @@ export default function Account({ session }: { session: Session }) {
         <input
           id="website"
           type="url"
-          value={website || ''}
+          value={website || ""}
           onChange={(e) => setWebsite(e.target.value)}
         />
       </div>
@@ -106,15 +111,18 @@ export default function Account({ session }: { session: Session }) {
           onClick={() => updateProfile({ username, website, avatar_url })}
           disabled={loading}
         >
-          {loading ? 'Loading ...' : 'Update'}
+          {loading ? "Loading ..." : "Update"}
         </button>
       </div>
 
       <div>
-        <button className="button block" onClick={() => supabase.auth.signOut()}>
+        <button
+          className="button block"
+          onClick={() => supabase.auth.signOut()}
+        >
           Sign Out
         </button>
       </div>
     </div>
-  )
+  );
 }
