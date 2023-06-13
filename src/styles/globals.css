@@ -32,6 +32,10 @@ body,
   overflow-x: hidden;
 }
 
+.custom {
+  padding-left: 10rem;
+}
+
 /* Grid */
 
 .container {
